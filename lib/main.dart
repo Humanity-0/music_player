@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart'; // Import sqflite_common_ffi
 import 'dart:io' show Platform; // Import to check the platform
-import 'dart:async';
+import 'dart:async'; // For runZonedGuarded
 
 import 'providers/audio_provider.dart';
 import 'providers/library_provider.dart';
@@ -13,38 +13,42 @@ import 'utils/theme_manager.dart';
 import 'data/database.dart'; // Ensure this import is present
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize sqflite for desktop
-  if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-  }
-
-  // Set up a global error handler
-  FlutterError.onError = (FlutterErrorDetails details) {
-    FlutterError.dumpErrorToConsole(details);
-    // Optionally, send the error details to an error reporting service
-  };
-
+  // Wrap everything inside runZonedGuarded to ensure consistent zones
   runZonedGuarded(() async {
+    // Initialize Flutter bindings within the same zone
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // Initialize sqflite_common_ffi for desktop platforms
+    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
+
+    // Set up a global Flutter error handler
+    FlutterError.onError = (FlutterErrorDetails details) {
+      FlutterError.dumpErrorToConsole(details);
+      // Optionally, send the error details to an error reporting service here
+    };
+
+    // Initialize your providers
     final libraryProvider = LibraryProvider();
     await libraryProvider.loadLibrary();
 
+    // Run the app
     runApp(MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => libraryProvider),
-        ChangeNotifierProvider(
-            create: (_) => PlaylistProvider()..loadPlaylists()),
+        ChangeNotifierProvider(create: (_) => PlaylistProvider()..loadPlaylists()),
         ChangeNotifierProvider(create: (_) => AudioProvider()),
       ],
       child: const MyApp(),
     ));
   }, (error, stack) {
-    // Handle uncaught errors
+    // Handle uncaught errors here
     print('Uncaught error: $error');
     print('Stack trace: $stack');
+    // Optionally, log the error to an external service
   });
 }
 
