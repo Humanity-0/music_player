@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart'; // Import sqflite_common_ffi
 import 'dart:io' show Platform; // Import to check the platform
+import 'dart:async';
 
 import 'providers/audio_provider.dart';
 import 'providers/library_provider.dart';
@@ -20,18 +21,31 @@ void main() async {
     databaseFactory = databaseFactoryFfi;
   }
 
-  final libraryProvider = LibraryProvider();
-  await libraryProvider.loadLibrary();
+  // Set up a global error handler
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.dumpErrorToConsole(details);
+    // Optionally, send the error details to an error reporting service
+  };
 
-  runApp(MultiProvider(
-    providers: [
-      ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      ChangeNotifierProvider(create: (_) => libraryProvider),
-      ChangeNotifierProvider(create: (_) => PlaylistProvider()..loadPlaylists()),
-      ChangeNotifierProvider(create: (_) => AudioProvider()),
-    ],
-    child: const MyApp(),
-  ));
+  runZonedGuarded(() async {
+    final libraryProvider = LibraryProvider();
+    await libraryProvider.loadLibrary();
+
+    runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => libraryProvider),
+        ChangeNotifierProvider(
+            create: (_) => PlaylistProvider()..loadPlaylists()),
+        ChangeNotifierProvider(create: (_) => AudioProvider()),
+      ],
+      child: const MyApp(),
+    ));
+  }, (error, stack) {
+    // Handle uncaught errors
+    print('Uncaught error: $error');
+    print('Stack trace: $stack');
+  });
 }
 
 class MyApp extends StatelessWidget {
