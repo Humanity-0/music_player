@@ -1,6 +1,6 @@
+// lib/ui/screens/home_screen.dart
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/theme_provider.dart';
 import 'library_screen.dart';
 import 'playlist_screen.dart';
 import 'player_screen.dart';
@@ -24,13 +24,13 @@ class HomeScreenState extends State<HomeScreen> {
   ];
 
   void _onItemTapped(int index) {
-    setState(() { _selectedIndex = index; });
+    setState(() {
+      _selectedIndex = index; 
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // If you want to explicitly set colors here, you can do so. 
-    // Otherwise, rely on the theme set in theme_manager.dart.
     return Scaffold(
       appBar: AppBar(
         title: const Text("Music Player"),
@@ -39,11 +39,6 @@ class HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        // If you rely on the theme, you don't need to set these again.
-        // But if you want to override, uncomment and choose your colors:
-        // backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-        // selectedItemColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
-        // unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.library_music), label: 'Library'),
           BottomNavigationBarItem(icon: Icon(Icons.playlist_play), label: 'Playlists'),

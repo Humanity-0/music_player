@@ -1,3 +1,5 @@
+// lib/utils/theme_manager.dart
+
 import 'package:flutter/material.dart';
 
 class ThemeManager {
@@ -20,7 +22,7 @@ class ThemeManager {
     brightness: Brightness.dark,
     primarySwatch: Colors.blue,
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: Color(0xFF121212), // A dark background color
+      backgroundColor: Color(0xFF121212),
       selectedItemColor: Colors.white,
       unselectedItemColor: Colors.grey,
       showUnselectedLabels: true,

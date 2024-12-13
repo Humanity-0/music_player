@@ -1,44 +1,46 @@
+// lib/providers/audio_provider.dart
+
 import 'package:flutter/foundation.dart';
+import 'package:audio_service/audio_service.dart';
 import '../data/models/song.dart';
-import '../services/audio_player_service.dart';
-import 'package:just_audio/just_audio.dart';
 
 class AudioProvider extends ChangeNotifier {
-  final AudioPlayerService _audioService = AudioPlayerService();
-  
-  Song? currentSong;
-  bool isShuffling = false;
+  final AudioHandler _audioHandler;
 
-  Stream<Duration?> get positionStream => _audioService.positionStream;
-  Stream<Duration?> get durationStream => _audioService.durationStream;
-  Stream<PlayerState> get playerStateStream => _audioService.playerStateStream;
+  AudioProvider({required AudioHandler audioHandler}) : _audioHandler = audioHandler;
+
+  Stream<PlaybackState> get playbackStateStream => _audioHandler.playbackState;
+
+  Stream<MediaItem?> get currentMediaItemStream => _audioHandler.currentMediaItem;
 
   Future<void> playSong(Song song) async {
-    currentSong = song;
-    await _audioService.playSong(song);
-    notifyListeners();
+    // Convert your Song model to MediaItem
+    final mediaItem = MediaItem(
+      id: song.albumArtPath, // Use a unique identifier, such as the song's URI
+      album: song.album,
+      title: song.title,
+      artist: song.artist,
+      // Add more metadata if needed
+    );
+
+    // Clear the queue and add the selected song
+    await _audioHandler.queue.clear();
+    await _audioHandler.addQueueItem(mediaItem);
+    await _audioHandler.play();
   }
 
-  void pause() async {
-    await _audioService.pause();
-    notifyListeners();
+  Future<void> play() async {
+    // Resume playback
+    await _audioHandler.play();
   }
 
-  void stop() async {
-    await _audioService.stop();
-    currentSong = null;
-    notifyListeners();
-  }
+  Future<void> pause() => _audioHandler.pause();
 
-  void toggleShuffle() async {
-    isShuffling = !isShuffling;
-    await _audioService.setShuffleMode(isShuffling);
-    notifyListeners();
-  }
+  Future<void> stop() => _audioHandler.stop();
 
-  void seek(Duration position) async {
-    await _audioService.seek(position);
-  }
+  Future<void> skipToNext() => _audioHandler.skipToNext();
 
-  bool get isPlaying => _audioService.isPlaying;
+  Future<void> skipToPrevious() => _audioHandler.skipToPrevious();
+
+  Future<void> seek(Duration position) => _audioHandler.seek(position);
 }

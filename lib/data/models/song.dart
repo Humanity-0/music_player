@@ -1,14 +1,13 @@
+// lib/data/models/song.dart
+
 class Song {
   final int? id;
-  String title;
-  String artist;
-  String album;
-  String albumArtPath; // Local path to the album art image
-  String lyrics;
-  bool isFavorite;
-  int playCount;
-  DateTime dateAdded;
-  DateTime lastPlayed;
+  final String title;
+  final String artist;
+  final String album;
+  final String albumArtPath;
+  final String lyrics;
+  final bool isFavorite;
 
   Song({
     this.id,
@@ -18,12 +17,10 @@ class Song {
     required this.albumArtPath,
     required this.lyrics,
     this.isFavorite = false,
-    this.playCount = 0,
-    DateTime? dateAdded,
-    DateTime? lastPlayed,
-  })  : dateAdded = dateAdded ?? DateTime.now(),
-        lastPlayed = lastPlayed ?? DateTime.fromMillisecondsSinceEpoch(0);
+  });
 
+  // Convert a Song into a Map. The keys must correspond to the names of the
+  // columns in the database.
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -33,25 +30,19 @@ class Song {
       'albumArtPath': albumArtPath,
       'lyrics': lyrics,
       'isFavorite': isFavorite ? 1 : 0,
-      'playCount': playCount,
-      'dateAdded': dateAdded.millisecondsSinceEpoch,
-      'lastPlayed': lastPlayed.millisecondsSinceEpoch,
     };
   }
 
+  // Extract a Song object from a Map.
   factory Song.fromMap(Map<String, dynamic> map) {
     return Song(
-      id: map['id'] as int?,
-      title: map['title'] as String,
-      artist: map['artist'] as String,
-      album: map['album'] as String,
-      albumArtPath: map['albumArtPath'] as String,
-      lyrics: map['lyrics'] as String,
-      isFavorite: (map['isFavorite'] as int) == 1,
-      playCount: map['playCount'] as int,
-      dateAdded: DateTime.fromMillisecondsSinceEpoch(map['dateAdded'] as int),
-      lastPlayed:
-          DateTime.fromMillisecondsSinceEpoch(map['lastPlayed'] as int),
+      id: map['id'],
+      title: map['title'],
+      artist: map['artist'],
+      album: map['album'],
+      albumArtPath: map['albumArtPath'],
+      lyrics: map['lyrics'],
+      isFavorite: map['isFavorite'] == 1,
     );
   }
 }
