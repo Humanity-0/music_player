@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart'; // Import sqflite_common_ffi
+import 'dart:io' show Platform; // Import to check the platform
 
 import 'providers/audio_provider.dart';
 import 'providers/library_provider.dart';
@@ -7,9 +9,17 @@ import 'providers/playlist_provider.dart';
 import 'providers/theme_provider.dart';
 import 'ui/screens/home_screen.dart';
 import 'utils/theme_manager.dart';
+import 'data/database.dart'; // Ensure this import is present
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize sqflite for desktop
+  if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
+
   final libraryProvider = LibraryProvider();
   await libraryProvider.loadLibrary();
 
