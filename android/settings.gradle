@@ -23,3 +23,5 @@ plugins {
 }
 
 include ":app"
+// def flutterRoot = rootProject.projectDir.parentFile.toPath().resolve("flutter")
+// apply from: flutterRoot.resolve("packages/flutter_tools/gradle/app_plugin_loader.gradle") # this causing error in build so commented, In previous apps I didn't required to add this line 
